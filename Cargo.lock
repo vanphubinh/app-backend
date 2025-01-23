@@ -118,7 +118,6 @@ dependencies = [
 name = "app-backend"
 version = "0.1.0"
 dependencies = [
- "dotenvy",
  "server",
 ]
 
@@ -537,8 +536,10 @@ checksum = "7e36cc9d416881d2e24f9a963be5fb1cd90966419ac844274161d10488b3e825"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
+ "js-sys",
  "num-traits",
  "serde",
+ "wasm-bindgen",
  "windows-targets 0.52.6",
 ]
 
@@ -1503,6 +1504,16 @@ checksum = "d89e7ee0cfbedfc4da3340218492196241d89eefb6dab27de5df917a6d2e78cf"
 dependencies = [
  "cfg-if",
  "digest",
+]
+
+[[package]]
+name = "measurement"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "infra",
+ "sea-orm",
+ "serde",
 ]
 
 [[package]]
