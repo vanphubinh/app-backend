@@ -1,5 +1,6 @@
 use axum::{routing::get, Router};
 use infra::{app_state::AppState, database};
+use interface::{RouterTrait, UomRouter};
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -33,9 +34,12 @@ pub async fn start() {
     }
   };
 
+  let uom_router = UomRouter::generate_routes();
+
   let app_state = Arc::new(AppState::new(db));
 
   let app = Router::new()
+    .merge(uom_router)
     .route("/", get(|| async { "Hello, world!" }))
     .layer(TraceLayer::new_for_http())
     .with_state(app_state);

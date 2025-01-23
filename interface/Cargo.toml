@@ -1,0 +1,8 @@
+[package]
+name = "interface"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum.workspace = true
+infra = { version = "0.1.0", path = "../infra" }

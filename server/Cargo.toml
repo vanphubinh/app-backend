@@ -7,6 +7,7 @@ edition = "2021"
 axum.workspace = true
 dotenvy = "0.15.7"
 infra = { version = "0.1.0", path = "../infra" }
+interface = { version = "0.1.0", path = "../interface" }
 tokio.workspace = true
 tower-http.workspace = true
 tracing.workspace = true
