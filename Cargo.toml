@@ -27,4 +27,5 @@ uuid = { version = "1.11.0", features = [
 ] }
 
 [dependencies]
+dotenvy = "0.15.7"
 server = { version = "0.1.0", path = "server" }

@@ -5,6 +5,9 @@ edition = "2021"
 
 [dependencies]
 axum.workspace = true
+dotenvy = "0.15.7"
+infra = { version = "0.1.0", path = "../infra" }
 tokio.workspace = true
 tower-http.workspace = true
+tracing.workspace = true
 tracing-subscriber.workspace = true

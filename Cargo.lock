@@ -118,6 +118,7 @@ dependencies = [
 name = "app-backend"
 version = "0.1.0"
 dependencies = [
+ "dotenvy",
  "server",
 ]
 
@@ -2386,8 +2387,11 @@ name = "server"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "dotenvy",
+ "infra",
  "tokio",
  "tower-http",
+ "tracing",
  "tracing-subscriber",
 ]
 
