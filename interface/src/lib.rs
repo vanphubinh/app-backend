@@ -1,4 +1,4 @@
-mod uom_router;
+pub mod uom_router;
 
 use axum::{routing::MethodRouter, Router};
 use infra::app_state::AppState;

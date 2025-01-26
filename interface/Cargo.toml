@@ -7,3 +7,4 @@ edition = "2021"
 axum.workspace = true
 infra = { version = "0.1.0", path = "../infra" }
 measurement = { version = "0.1.0", path = "../context/measurement" }
+utoipa.workspace = true

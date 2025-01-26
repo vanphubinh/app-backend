@@ -13,23 +13,32 @@ pub struct UomRouter;
 
 impl RouterTrait for UomRouter {
   fn generate_routes() -> Router<Arc<AppState>> {
-    Router::new().merge(list_uoms())
+    Router::new().merge(list_paginated_uoms())
   }
 }
 
-fn list_uoms() -> Router<Arc<AppState>> {
+#[utoipa::path(
+  get,
+  path = "/uom/list",
+  tag = "uom",
+  params(ListPaginatedUomsParams),
+  responses(
+    (status = 200, body = inline(PaginatedResponse<Uom>))
+  )
+)]
+fn list_paginated_uoms() -> Router<Arc<AppState>> {
   async fn handler(
     State(state): State<Arc<AppState>>,
     Query(params): Query<ListPaginatedUomsParams>,
   ) -> Result<Json<PaginatedResponse<Uom>>, AppError> {
     let (uoms, meta) = MeasurementService::list_paginated_uoms(&state.db.clone(), params).await?;
 
-    Ok(Json(PaginatedResponse {
+    Ok(Json(PaginatedResponse::<Uom> {
       ok: true,
       data: uoms,
       meta,
     }))
   }
 
-  route("/uoms.list", get(handler))
+  route("/uom/list", get(handler))
 }

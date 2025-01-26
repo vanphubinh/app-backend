@@ -1,4 +1,5 @@
 use serde::Serialize;
+use utoipa::ToSchema;
 
 use super::{meta::PaginationMeta, uuid::Uuid};
 
@@ -37,7 +38,7 @@ impl<T> OkResponseWithData<T> {
   }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct PaginatedResponse<T> {
   pub ok: bool,
   pub data: Vec<T>,

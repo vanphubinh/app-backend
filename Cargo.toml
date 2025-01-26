@@ -28,6 +28,9 @@ uuid = { version = "1.11.0", features = [
   "fast-rng",
   "macro-diagnostics",
 ] }
+utoipa = { version = "5.3.1", features = ["axum_extras", "uuid"] }
+utoipauto = "0.2.0"
+utoipa-scalar = { version = "0.3.0", features = ["axum"] }
 
 [dependencies]
 server = { version = "0.1.0", path = "server" }

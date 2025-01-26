@@ -1,13 +1,21 @@
-use axum::{routing::get, Router};
+use axum::{routing::get, Json, Router};
 use infra::{app_state::AppState, database};
 use interface::{RouterTrait, UomRouter};
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use utoipa::OpenApi;
+use utoipa_scalar::{Scalar, Servable};
+use utoipauto::utoipauto;
 
 #[tokio::main]
 pub async fn start() {
   dotenvy::dotenv().ok();
+
+  #[utoipauto(paths = "./interface/src from interface")]
+  #[derive(OpenApi)]
+  #[openapi()]
+  struct ApiDoc;
 
   tracing_subscriber::registry()
     .with(
@@ -34,6 +42,10 @@ pub async fn start() {
     }
   };
 
+  async fn openapi() -> Json<utoipa::openapi::OpenApi> {
+    Json(ApiDoc::openapi())
+  }
+
   let uom_router = UomRouter::generate_routes();
 
   let app_state = Arc::new(AppState::new(db));
@@ -41,6 +53,8 @@ pub async fn start() {
   let app = Router::new()
     .merge(uom_router)
     .route("/", get(|| async { "Hello, world!" }))
+    .route("/docs.json", get(openapi))
+    .merge(Scalar::with_url("/docs", ApiDoc::openapi()))
     .layer(TraceLayer::new_for_http())
     .with_state(app_state);
 
