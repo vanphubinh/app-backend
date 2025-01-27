@@ -6,9 +6,9 @@ use utoipa::ToSchema;
 
 #[derive(Debug, DerivePartialModel, Serialize, FromQueryResult, ToSchema)]
 #[sea_orm(entity = "<uom::Model as ModelTrait>::Entity")]
-#[serde(rename_all = "camelCase")]
+#[schema(rename_all = "camelCase")]
 pub struct Uom {
-  #[schema(example = "123e4567")]
+  #[schema(example = "1cjBf8J9HvUQxtPimwpDLF")]
   pub id: Uuid,
   #[schema(example = "kg")]
   pub name: String,

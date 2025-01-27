@@ -2416,6 +2416,7 @@ dependencies = [
  "dotenvy",
  "infra",
  "interface",
+ "measurement",
  "tokio",
  "tower-http",
  "tracing",

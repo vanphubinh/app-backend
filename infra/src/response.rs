@@ -1,5 +1,5 @@
 use serde::Serialize;
-use utoipa::ToSchema;
+use utoipa::{ToResponse, ToSchema};
 
 use super::{meta::PaginationMeta, uuid::Uuid};
 
@@ -14,9 +14,11 @@ impl Default for OkResponse {
   }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToResponse)]
 pub struct OkResponseWithReturningId {
+  #[response(example = "true")]
   pub ok: bool,
+  #[response(example = "1cjBf8J9HvUQxtPimwpDLF")]
   pub id: Uuid,
 }
 
@@ -38,8 +40,9 @@ impl<T> OkResponseWithData<T> {
   }
 }
 
-#[derive(Serialize, ToSchema)]
-pub struct PaginatedResponse<T> {
+#[derive(Serialize, ToResponse)]
+pub struct PaginatedResponse<T: ToSchema> {
+  #[response(example = "true")]
   pub ok: bool,
   pub data: Vec<T>,
   pub meta: PaginationMeta,

@@ -1,7 +1,12 @@
 use infra::meta::PaginationMeta;
-use sea_orm::{DbConn, DbErr, EntityTrait, PaginatorTrait};
+use sea_orm::{ActiveModelTrait, DbConn, DbErr, EntityTrait, PaginatorTrait, Set};
 
-use crate::{dto::uom::Uom, entity::uom, validator::ListPaginatedUomsParams};
+use crate::{
+  dto::uom::Uom as UomDto,
+  entity::uom,
+  entity::uom::Model as Uom,
+  validator::{CreateUomPayload, ListPaginatedUomsParams},
+};
 
 pub struct MeasurementService;
 
@@ -9,12 +14,12 @@ impl MeasurementService {
   pub async fn list_paginated_uoms(
     db: &DbConn,
     params: ListPaginatedUomsParams,
-  ) -> Result<(Vec<Uom>, PaginationMeta), DbErr> {
+  ) -> Result<(Vec<UomDto>, PaginationMeta), DbErr> {
     let per_page = params.per_page.unwrap_or(30);
     let page = params.page.unwrap_or(1) - 1;
 
     let uom_pages = uom::Entity::find()
-      .into_partial_model::<Uom>()
+      .into_partial_model::<UomDto>()
       .paginate(db, per_page);
     let uoms = uom_pages.fetch_page(page).await?;
     let items_and_pages = uom_pages.num_items_and_pages().await?;
@@ -30,5 +35,14 @@ impl MeasurementService {
         total_pages,
       },
     ))
+  }
+
+  pub async fn create_uom(db: &DbConn, payload: CreateUomPayload) -> Result<Uom, DbErr> {
+    let uom = uom::ActiveModel {
+      name: Set(payload.name),
+      ..Default::default()
+    };
+    let uom = uom.insert(db).await?;
+    Ok(uom)
   }
 }

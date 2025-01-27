@@ -12,7 +12,9 @@ use utoipauto::utoipauto;
 pub async fn start() {
   dotenvy::dotenv().ok();
 
-  #[utoipauto(paths = "./interface/src from interface")]
+  #[utoipauto(
+    paths = "./interface/src from interface, ./infra/src from infra, ./context/measurement/src from measurement"
+  )]
   #[derive(OpenApi)]
   #[openapi()]
   struct ApiDoc;
