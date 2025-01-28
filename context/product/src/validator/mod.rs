@@ -1,0 +1,3 @@
+pub mod list_paginated_categories_params;
+
+pub use list_paginated_categories_params::ListPaginatedCategoriesParams;

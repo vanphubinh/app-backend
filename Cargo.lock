@@ -1391,6 +1391,7 @@ dependencies = [
  "axum",
  "infra",
  "measurement",
+ "product",
  "utoipa",
 ]
 
@@ -2428,6 +2429,7 @@ dependencies = [
  "infra",
  "interface",
  "measurement",
+ "product",
  "tokio",
  "tower-http",
  "tracing",

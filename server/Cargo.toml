@@ -9,6 +9,7 @@ dotenvy = "0.15.7"
 infra = { version = "0.1.0", path = "../infra" }
 interface = { version = "0.1.0", path = "../interface" }
 measurement = { version = "0.1.0", path = "../context/measurement" }
+product = { version = "0.1.0", path = "../context/product" }
 tokio.workspace = true
 tower-http.workspace = true
 tracing.workspace = true

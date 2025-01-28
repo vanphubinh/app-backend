@@ -1,9 +1,11 @@
+pub mod category_router;
 pub mod uom_router;
 
 use axum::{routing::MethodRouter, Router};
 use infra::app_state::AppState;
 use std::sync::Arc;
 
+pub use category_router::CategoryRouter;
 pub use uom_router::UomRouter;
 
 pub trait RouterTrait {
