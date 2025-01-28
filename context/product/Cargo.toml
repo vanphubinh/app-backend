@@ -1,0 +1,11 @@
+[package]
+name = "product"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono.workspace = true
+infra = { version = "0.1.0", path = "../../infra" }
+sea-orm.workspace = true
+serde.workspace = true
+utoipa.workspace = true
