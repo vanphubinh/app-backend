@@ -29,8 +29,8 @@ impl RouterTrait for UomRouter {
 
 #[utoipa::path(
   get,
-  path = "/uom/list",
-  tag = "uom",
+  path = "/uoms/list",
+  tag = "measurement",
   params(ListPaginatedUomsParams),
   responses(
     (status = 200, response = inline(PaginatedResponse<UomDto>))
@@ -55,8 +55,8 @@ fn list_paginated_uoms() -> Router<Arc<AppState>> {
 
 #[utoipa::path(
   post,
-  path = "/uom/create",
-  tag = "uom",
+  path = "/uoms/create",
+  tag = "measurement",
   request_body = CreateUomPayload,
   responses(
     (status = 200, response = OkResponseWithReturningId)
