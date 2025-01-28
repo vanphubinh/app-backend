@@ -50,7 +50,7 @@ fn list_paginated_uoms() -> Router<Arc<AppState>> {
     }))
   }
 
-  route("/uom/list", get(handler))
+  route("/uoms/list", get(handler))
 }
 
 #[utoipa::path(
@@ -71,5 +71,5 @@ fn create_uom() -> Router<Arc<AppState>> {
     Ok(Json(OkResponseWithReturningId::new(uom.id)))
   }
 
-  route("/uom/create", post(handler))
+  route("/uoms/create", post(handler))
 }
