@@ -1,10 +1,15 @@
 use infra::meta::PaginationMeta;
-use sea_orm::{ActiveModelTrait, DbConn, DbErr, EntityTrait, PaginatorTrait, Set};
+use sea_orm::TransactionError;
+use sea_orm::{
+  ActiveModelTrait, DbConn, DbErr, EntityTrait, PaginatorTrait, Set, TransactionTrait,
+};
 
 use crate::dto::attribute_option::AttributeOption as AttributeOptionDto;
 use crate::dto::category::Category as CategoryDto;
 use crate::entity::attribute_option;
+use crate::entity::attribute_option_value;
 use crate::entity::category;
+use crate::validator::CreateAttributeOptionPayload;
 use crate::validator::ListPaginatedAttributeOptionsParams;
 use crate::validator::{CreateCategoryPayload, ListPaginatedCategoriesParams};
 
@@ -76,5 +81,40 @@ impl ProductService {
         per_page,
       },
     ))
+  }
+
+  pub async fn create_attribute_option(
+    db: &DbConn,
+    payload: CreateAttributeOptionPayload,
+  ) -> Result<attribute_option::Model, TransactionError<DbErr>> {
+    let attribute = db
+      .transaction::<_, attribute_option::Model, DbErr>(move |txn| {
+        Box::pin(async move {
+          let attribute = attribute_option::ActiveModel {
+            name: Set(payload.name),
+            ..Default::default()
+          };
+          let attribute = attribute.insert(txn).await?;
+          if payload.option_values.len() > 0 {
+            let options = payload
+              .option_values
+              .into_iter()
+              .map(|option| attribute_option_value::ActiveModel {
+                name: Set(option.name.to_string()),
+                attribute_option_id: Set(attribute.id),
+                ..Default::default()
+              })
+              .collect::<Vec<_>>();
+
+            attribute_option_value::Entity::insert_many(options)
+              .exec(txn)
+              .await?;
+          }
+
+          Ok(attribute)
+        })
+      })
+      .await?;
+    Ok(attribute)
   }
 }
