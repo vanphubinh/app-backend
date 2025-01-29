@@ -1,9 +1,9 @@
 use infra::meta::PaginationMeta;
-use sea_orm::{DbConn, DbErr, EntityTrait, PaginatorTrait};
+use sea_orm::{ActiveModelTrait, DbConn, DbErr, EntityTrait, PaginatorTrait, Set};
 
 use crate::dto::category::Category as CategoryDto;
 use crate::entity::category;
-use crate::validator::ListPaginatedCategoriesParams;
+use crate::validator::{CreateCategoryPayload, ListPaginatedCategoriesParams};
 
 pub struct ProductService;
 
@@ -32,5 +32,20 @@ impl ProductService {
         per_page,
       },
     ))
+  }
+
+  pub async fn create_category(
+    db: &DbConn,
+    payload: CreateCategoryPayload,
+  ) -> Result<category::Model, DbErr> {
+    let category = category::ActiveModel {
+      name: Set(payload.name),
+      parent_category_id: Set(payload.parent_category_id),
+      ..Default::default()
+    };
+
+    let category = category.insert(db).await?;
+
+    Ok(category)
   }
 }

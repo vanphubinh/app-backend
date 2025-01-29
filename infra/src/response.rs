@@ -14,11 +14,13 @@ impl Default for OkResponse {
   }
 }
 
-#[derive(Serialize, ToResponse)]
+#[derive(Serialize, ToResponse, ToSchema)]
 pub struct OkResponseWithReturningId {
   #[response(example = "true")]
+  #[schema(example = "true")]
   pub ok: bool,
   #[response(example = "1cjBf8J9HvUQxtPimwpDLF")]
+  #[schema(example = "1cjBf8J9HvUQxtPimwpDLF")]
   pub id: Uuid,
 }
 
