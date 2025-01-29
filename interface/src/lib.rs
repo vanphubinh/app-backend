@@ -1,3 +1,4 @@
+pub mod attribute_option_router;
 pub mod category_router;
 pub mod uom_router;
 
@@ -5,6 +6,7 @@ use axum::{routing::MethodRouter, Router};
 use infra::app_state::AppState;
 use std::sync::Arc;
 
+pub use attribute_option_router::AttributeOptionRouter;
 pub use category_router::CategoryRouter;
 pub use uom_router::UomRouter;
 

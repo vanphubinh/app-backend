@@ -1,6 +1,6 @@
 use axum::{routing::get, Json, Router};
 use infra::{app_state::AppState, database};
-use interface::{CategoryRouter, RouterTrait, UomRouter};
+use interface::{AttributeOptionRouter, CategoryRouter, RouterTrait, UomRouter};
 use std::{net::SocketAddr, sync::Arc};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -51,12 +51,14 @@ pub async fn start() {
 
   let uom_router = UomRouter::generate_routes();
   let category_router = CategoryRouter::generate_routes();
+  let attribute_option_router = AttributeOptionRouter::generate_routes();
 
   let app_state = Arc::new(AppState::new(db));
 
   let app = Router::new()
     .merge(uom_router)
     .merge(category_router)
+    .merge(attribute_option_router)
     .route("/", get(|| async { "Hello, world!" }))
     .route("/docs.json", get(openapi))
     .merge(Scalar::with_url("/docs", ApiDoc::openapi()))
