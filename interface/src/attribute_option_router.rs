@@ -22,7 +22,7 @@ impl RouterTrait for AttributeOptionRouter {
 
 #[utoipa::path(
   get,
-  path = "/attribute-options/list",
+  path = "/attributeOptions/list",
   description = "List paginated attribute options",
   tag = "Product",
   params(ListPaginatedAttributeOptionsParams),
@@ -45,5 +45,5 @@ fn list_paginated_attribute_options() -> Router<Arc<AppState>> {
     }))
   }
 
-  route("/attribute-options/list", get(handler))
+  route("/attributeOptions/list", get(handler))
 }
