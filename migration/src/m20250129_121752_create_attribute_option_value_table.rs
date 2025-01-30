@@ -12,7 +12,7 @@ impl MigrationTrait for Migration {
           .table(AttributeOptionValue::Table)
           .if_not_exists()
           .col(uuid(AttributeOptionValue::Id).primary_key())
-          .col(text(AttributeOptionValue::Name).default(""))
+          .col(text(AttributeOptionValue::Value).default(""))
           .col(uuid(AttributeOptionValue::AttributeOptionId))
           .foreign_key(
             ForeignKey::create()
@@ -39,7 +39,7 @@ impl MigrationTrait for Migration {
 enum AttributeOptionValue {
   Table,
   Id,
-  Name,
+  Value,
   AttributeOptionId,
 }
 

@@ -2,10 +2,7 @@
 
 use async_trait::async_trait;
 use infra::uuid::Uuid;
-use sea_orm::{
-  entity::prelude::*, ActiveModelBehavior, ActiveModelTrait, DerivePartialModel, FromQueryResult,
-  Set,
-};
+use sea_orm::{entity::prelude::*, ActiveModelBehavior, ActiveModelTrait, Set};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
@@ -15,7 +12,7 @@ pub struct Model {
   #[sea_orm(primary_key, auto_increment = false)]
   pub id: Uuid,
   #[sea_orm(column_type = "Text")]
-  pub name: String,
+  pub value: String,
   #[sea_orm(column_type = "Uuid")]
   pub attribute_option_id: Uuid,
 }
@@ -44,12 +41,4 @@ impl ActiveModelBehavior for ActiveModel {
       ..ActiveModelTrait::default()
     }
   }
-}
-
-#[derive(Debug, DerivePartialModel, Clone, Serialize, FromQueryResult, Deserialize)]
-#[sea_orm(entity = "Entity")]
-#[serde(rename_all = "camelCase")]
-pub struct PartialModel {
-  pub id: Uuid,
-  pub name: String,
 }

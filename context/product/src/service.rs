@@ -100,7 +100,7 @@ impl ProductService {
               .option_values
               .into_iter()
               .map(|option| attribute_option_value::ActiveModel {
-                name: Set(option.name.to_string()),
+                value: Set(option.value.to_string()),
                 attribute_option_id: Set(attribute.id),
                 ..Default::default()
               })

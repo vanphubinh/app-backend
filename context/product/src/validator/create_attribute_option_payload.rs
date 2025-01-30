@@ -19,5 +19,5 @@ pub struct CreateAttributeOptionPayload {
 #[utoipa_ignore]
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct OptionValue {
-  pub name: String,
+  pub value: String,
 }
