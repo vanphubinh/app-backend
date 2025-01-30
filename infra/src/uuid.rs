@@ -1,4 +1,4 @@
-use sea_orm::TryFromU64;
+use sea_orm::{sea_query::with_array::NotU8, QueryResult, TryFromU64, Value};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use short_uuid::ShortUuid;
 use uuid::Uuid as OriginalUuid;
@@ -73,6 +73,8 @@ impl TryFromU64 for Uuid {
   }
 }
 
+impl NotU8 for Uuid {}
+
 impl sea_orm::sea_query::ValueType for Uuid {
   fn try_from(v: sea_orm::Value) -> Result<Self, sea_orm::sea_query::ValueTypeErr> {
     <OriginalUuid as sea_orm::sea_query::ValueType>::try_from(v).map(|v| Uuid(v))
@@ -94,5 +96,48 @@ impl sea_orm::sea_query::ValueType for Uuid {
 impl sea_orm::sea_query::Nullable for Uuid {
   fn null() -> sea_orm::Value {
     sea_orm::Value::Uuid(None)
+  }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct UuidVec(pub Vec<Uuid>);
+
+impl std::convert::From<UuidVec> for Value {
+  fn from(source: UuidVec) -> Self {
+    source.0.into()
+  }
+}
+
+impl From<Vec<Uuid>> for UuidVec {
+  fn from(source: Vec<Uuid>) -> Self {
+    UuidVec(source)
+  }
+}
+
+impl sea_orm::TryGetable for UuidVec {
+  fn try_get_by<I: sea_orm::ColIdx>(
+    res: &QueryResult,
+    idx: I,
+  ) -> Result<Self, sea_orm::TryGetError> {
+    let v = <Vec<OriginalUuid> as sea_orm::TryGetable>::try_get_by(res, idx)?;
+    Ok(UuidVec(v.into_iter().map(|v| Uuid(v)).collect()))
+  }
+}
+
+impl sea_orm::sea_query::ValueType for UuidVec {
+  fn try_from(v: sea_orm::Value) -> Result<Self, sea_orm::sea_query::ValueTypeErr> {
+    <Vec<Uuid> as sea_orm::sea_query::ValueType>::try_from(v).map(|v| UuidVec(v))
+  }
+
+  fn type_name() -> String {
+    stringify!(UuidVec).to_owned()
+  }
+
+  fn array_type() -> sea_orm::sea_query::ArrayType {
+    sea_orm::sea_query::ArrayType::Uuid
+  }
+
+  fn column_type() -> sea_orm::sea_query::ColumnType {
+    sea_orm::sea_query::ColumnType::Uuid
   }
 }
