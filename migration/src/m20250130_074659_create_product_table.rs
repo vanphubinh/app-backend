@@ -14,11 +14,11 @@ impl MigrationTrait for Migration {
           .col(uuid(Product::Id).primary_key())
           .col(uuid(Product::ProductTemplateId))
           .col(decimal_len(Product::Price, 15, 3).default(0.0))
-          .col(boolean(Product::IsProductVariant).default(false))
-          .col(array(Product::Combinations, ColumnType::Uuid))
+          // .col(boolean(Product::IsProductVariant).default(false))
+          // .col(array(Product::Combinations, ColumnType::Uuid))
           .col(timestamp_with_time_zone(Product::CreatedAt).default(Expr::current_timestamp()))
           .col(timestamp_with_time_zone_null(Product::UpdatedAt))
-          .col(timestamp_with_time_zone_null(Product::ArchivedAt))
+          // .col(timestamp_with_time_zone_null(Product::ArchivedAt))
           .foreign_key(
             ForeignKey::create()
               .name("fk-product-product_template_id")
@@ -43,11 +43,11 @@ enum Product {
   Id,
   ProductTemplateId,
   Price,
-  IsProductVariant,
-  Combinations,
+  // IsProductVariant,
+  // Combinations,
   CreatedAt,
   UpdatedAt,
-  ArchivedAt,
+  // ArchivedAt,
 }
 
 #[derive(DeriveIden)]

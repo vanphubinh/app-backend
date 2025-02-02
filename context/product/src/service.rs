@@ -5,14 +5,15 @@ use sea_orm::{
   TransactionTrait,
 };
 
-use crate::dto::attribute_option::AttributeOption as AttributeOptionDto;
-use crate::dto::category::Category as CategoryDto;
-use crate::entity::attribute_option;
-use crate::entity::attribute_option_value;
+use crate::dto::{
+  attribute_option::AttributeOption as AttributeOptionDto, category::Category as CategoryDto,
+};
 use crate::entity::category;
-use crate::validator::CreateAttributeOptionPayload;
-use crate::validator::ListPaginatedAttributeOptionsParams;
-use crate::validator::{CreateCategoryPayload, ListPaginatedCategoriesParams};
+use crate::entity::{attribute_option, attribute_option_value, product, product_template};
+use crate::validator::{
+  CreateAttributeOptionPayload, CreateCategoryPayload, CreateProductPayload,
+  ListPaginatedAttributeOptionsParams, ListPaginatedCategoriesParams,
+};
 
 pub struct ProductService;
 
@@ -119,5 +120,36 @@ impl ProductService {
       })
       .await?;
     Ok(attribute)
+  }
+
+  pub async fn create_product(
+    db: &DbConn,
+    payload: CreateProductPayload,
+  ) -> Result<product::Model, TransactionError<DbErr>> {
+    let product = db
+      .transaction::<_, product::Model, DbErr>(move |trx| {
+        Box::pin(async move {
+          let product_template = product_template::ActiveModel {
+            name: Set(payload.name),
+            uom_id: Set(payload.uom_id),
+            category_id: Set(payload.category_id),
+            is_track_inventory: Set(payload.is_track_inventory),
+            product_type: Set(payload.product_type),
+            product_subtype: Set(payload.product_subtype),
+            ..Default::default()
+          };
+          let product_template = product_template.insert(trx).await?;
+
+          let product = product::ActiveModel {
+            product_template_id: Set(product_template.id),
+            price: Set(payload.price),
+            ..Default::default()
+          };
+          let product = product.insert(trx).await?;
+          Ok(product)
+        })
+      })
+      .await?;
+    Ok(product)
   }
 }

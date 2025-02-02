@@ -1,5 +1,6 @@
 pub mod attribute_option_router;
 pub mod category_router;
+pub mod product_router;
 pub mod uom_router;
 
 use axum::{routing::MethodRouter, Router};
@@ -8,6 +9,7 @@ use std::sync::Arc;
 
 pub use attribute_option_router::AttributeOptionRouter;
 pub use category_router::CategoryRouter;
+pub use product_router::ProductRouter;
 pub use uom_router::UomRouter;
 
 pub trait RouterTrait {

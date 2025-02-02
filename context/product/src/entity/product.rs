@@ -12,8 +12,6 @@ pub struct Model {
   pub id: Uuid,
   pub product_template_id: Uuid,
   pub price: Decimal,
-  pub is_product_variant: bool,
-  pub combinations: UuidVec,
   pub created_at: ChronoDateTimeWithTimeZone,
   #[sea_orm(nullable)]
   pub updated_at: Option<ChronoDateTimeWithTimeZone>,

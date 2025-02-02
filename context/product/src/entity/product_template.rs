@@ -3,6 +3,7 @@ use chrono::Utc;
 use infra::uuid::Uuid;
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[sea_orm(table_name = "product_template")]
@@ -59,27 +60,31 @@ impl ActiveModelBehavior for ActiveModel {
   }
 }
 
-#[derive(Debug, EnumIter, DeriveActiveEnum, Deserialize, Clone, PartialEq, Eq, Serialize)]
+#[derive(
+  Debug, EnumIter, DeriveActiveEnum, Deserialize, Clone, PartialEq, Eq, Serialize, ToSchema,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "product_type")]
+#[serde(rename_all = "lowercase")]
 pub enum ProductType {
   #[sea_orm(string_value = "goods")]
-  #[serde(rename(deserialize = "goods"))]
   Goods,
   #[sea_orm(string_value = "service")]
-  #[serde(rename(deserialize = "service"))]
   Service,
 }
 
-#[derive(Debug, EnumIter, DeriveActiveEnum, Deserialize, Clone, PartialEq, Eq, Serialize)]
+#[derive(
+  Debug, EnumIter, DeriveActiveEnum, Deserialize, Clone, PartialEq, Eq, Serialize, ToSchema,
+)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "product_subtype")]
+#[serde(rename_all = "lowercase")]
 pub enum ProductSubtype {
   #[sea_orm(string_value = "normal")]
-  #[serde(rename(deserialize = "normal"))]
+  #[serde(rename = "normal")]
   Normal,
   #[sea_orm(string_value = "packaging_with_print")]
-  #[serde(rename(deserialize = "packaging_with_print"))]
+  #[serde(rename = "packaging_with_print")]
   PackagingWithPrint,
   #[sea_orm(string_value = "mould")]
-  #[serde(rename(deserialize = "mould"))]
+  #[serde(rename = "mould")]
   Mould,
 }
