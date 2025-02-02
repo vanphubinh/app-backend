@@ -8,4 +8,6 @@ pub struct ListPaginatedCategoriesParams {
   pub page: Option<u64>,
   #[param(rename = "perPage", example = "30", minimum = 30)]
   pub per_page: Option<u64>,
+  #[param(example = "Packaging")]
+  pub search: Option<String>,
 }

@@ -1,5 +1,7 @@
 use infra::meta::PaginationMeta;
-use sea_orm::{ActiveModelTrait, DbConn, DbErr, EntityTrait, PaginatorTrait, Set};
+use sea_orm::{
+  ActiveModelTrait, ColumnTrait, DbConn, DbErr, EntityTrait, PaginatorTrait, QueryFilter, Set,
+};
 
 use crate::{
   dto::uom::Uom as UomDto,
@@ -17,8 +19,10 @@ impl MeasurementService {
   ) -> Result<(Vec<UomDto>, PaginationMeta), DbErr> {
     let per_page = params.per_page.unwrap_or(30);
     let page = params.page.unwrap_or(1) - 1;
+    let search = params.search.unwrap_or_default();
 
     let uom_pages = uom::Entity::find()
+      .filter(uom::Column::Name.contains(search))
       .into_partial_model::<UomDto>()
       .paginate(db, per_page);
     let uoms = uom_pages.fetch_page(page).await?;

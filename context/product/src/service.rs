@@ -1,7 +1,8 @@
 use infra::meta::PaginationMeta;
 use sea_orm::TransactionError;
 use sea_orm::{
-  ActiveModelTrait, DbConn, DbErr, EntityTrait, PaginatorTrait, Set, TransactionTrait,
+  ActiveModelTrait, ColumnTrait, DbConn, DbErr, EntityTrait, PaginatorTrait, QueryFilter, Set,
+  TransactionTrait,
 };
 
 use crate::dto::attribute_option::AttributeOption as AttributeOptionDto;
@@ -22,8 +23,10 @@ impl ProductService {
   ) -> Result<(Vec<CategoryDto>, PaginationMeta), DbErr> {
     let per_page = params.per_page.unwrap_or(30);
     let page = params.page.unwrap_or(1) - 1;
+    let search = params.search.unwrap_or_default();
 
     let category_pages = category::Entity::find()
+      .filter(category::Column::Name.contains(search))
       .into_partial_model::<CategoryDto>()
       .paginate(db, per_page);
     let categories = category_pages.fetch_page(page).await?;
