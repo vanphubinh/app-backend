@@ -1,13 +1,10 @@
 use crate::{
   dto::category::Category,
-  entity::{
-    product,
-    product_template::{ProductSubtype, ProductType},
-  },
+  entity::product_template::{ProductSubtype, ProductType},
 };
 use infra::uuid::Uuid;
 use measurement::dto::uom::Uom;
-use sea_orm::FromQueryResult;
+use sea_orm::{prelude::Decimal, FromQueryResult};
 use serde::Serialize;
 use utoipa::ToSchema;
 
@@ -23,6 +20,7 @@ pub struct ProductQueryResult {
   pub is_track_inventory: bool,
   pub product_type: ProductType,
   pub product_subtype: ProductSubtype,
+  pub price: Decimal,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -39,4 +37,6 @@ pub struct Product {
   pub product_type: ProductType,
   #[schema(rename = "productSubtype")]
   pub product_subtype: ProductSubtype,
+  #[schema(rename = "price")]
+  pub price: Decimal,
 }

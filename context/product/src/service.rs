@@ -141,6 +141,7 @@ impl ProductService {
     let product_query = Query::select()
       .column((product::Entity, product::Column::Id))
       .column((product::Entity, product::Column::ProductTemplateId))
+      .column((product::Entity, product::Column::Price))
       .column((product_template::Entity, product_template::Column::Name))
       .column((product_template::Entity, product_template::Column::UomId))
       .expr_as(
@@ -176,6 +177,12 @@ impl ProductService {
         Alias::new("product_subtype"),
       )
       .from(product::Entity)
+      .cond_where(
+        Condition::any().add(
+          Expr::col((product_template::Entity, product_template::Column::Name))
+            .ilike(format!("%{}%", search.to_ascii_lowercase())),
+        ),
+      )
       .left_join(
         product_template::Entity,
         Expr::col((product::Entity, product::Column::ProductTemplateId))
@@ -198,7 +205,8 @@ impl ProductService {
       .limit(per_page)
       .to_owned();
     let builder = db.get_database_backend();
-    let product_result = ProductQueryResult::find_by_statement(builder.build(&product_query))
+    let statement = builder.build(&product_query);
+    let product_result = ProductQueryResult::find_by_statement(statement)
       .all(db)
       .await?;
 
@@ -220,6 +228,7 @@ impl ProductService {
         is_track_inventory: product.is_track_inventory,
         product_type: product.product_type,
         product_subtype: product.product_subtype,
+        price: product.price,
       });
     }
 
