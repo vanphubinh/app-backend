@@ -1,16 +1,58 @@
 use crate::{route, RouterTrait};
 use std::sync::Arc;
 
-use axum::{extract::State, routing::post, Json, Router};
-use infra::{app_state::AppState, error::AppError, response::OkResponseWithReturningId};
-use product::{service::ProductService, validator::CreateProductPayload};
+use axum::{
+  extract::{Query, State},
+  routing::{get, post},
+  Json, Router,
+};
+use infra::{
+  app_state::AppState,
+  error::AppError,
+  response::{OkResponseWithReturningId, PaginatedResponse},
+};
+use product::{
+  dto::product::Product as ProductDto,
+  service::ProductService,
+  validator::{CreateProductPayload, ListPaginatedProductsParams},
+};
 
 pub struct ProductRouter;
 
 impl RouterTrait for ProductRouter {
   fn generate_routes() -> Router<Arc<AppState>> {
-    Router::new().merge(create_product())
+    Router::new()
+      .merge(list_paginated_products())
+      .merge(create_product())
   }
+}
+
+#[utoipa::path(
+  get,
+  path = "/products/list",
+  description = "List paginated products",
+  tag = "Product",
+  params(ListPaginatedProductsParams),
+  responses(
+    (status = 200, response = inline(PaginatedResponse<ProductDto>))
+  )
+)]
+fn list_paginated_products() -> Router<Arc<AppState>> {
+  async fn handler(
+    State(state): State<Arc<AppState>>,
+    Query(params): Query<ListPaginatedProductsParams>,
+  ) -> Result<Json<PaginatedResponse<ProductDto>>, AppError> {
+    let (products, meta) =
+      ProductService::list_paginated_products(&state.db.clone(), params).await?;
+
+    Ok(Json(PaginatedResponse::<ProductDto> {
+      ok: true,
+      data: products,
+      meta,
+    }))
+  }
+
+  route("/products/list", get(handler))
 }
 
 #[utoipa::path(

@@ -1,19 +1,27 @@
 use infra::meta::PaginationMeta;
-use sea_orm::TransactionError;
+use infra::uuid::Uuid;
+use measurement::entity::uom;
+use sea_orm::prelude::Expr;
+use sea_orm::sea_query::extension::postgres::PgExpr;
+use sea_orm::sea_query::{Alias, Query};
 use sea_orm::{
-  ActiveModelTrait, ColumnTrait, DbConn, DbErr, EntityTrait, PaginatorTrait, QueryFilter, Set,
-  TransactionTrait,
+  ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DbConn, DbErr, EntityTrait,
+  FromQueryResult, PaginatorTrait, QueryFilter, Set, TransactionError, TransactionTrait,
 };
 
 use crate::dto::{
-  attribute_option::AttributeOption as AttributeOptionDto, category::Category as CategoryDto,
+  attribute_option::AttributeOption as AttributeOptionDto,
+  category::Category as CategoryDto,
+  product::{Product as ProductDto, ProductQueryResult},
 };
-use crate::entity::category;
-use crate::entity::{attribute_option, attribute_option_value, product, product_template};
+use crate::entity::{
+  attribute_option, attribute_option_value, category, product, product_template,
+};
 use crate::validator::{
   CreateAttributeOptionPayload, CreateCategoryPayload, CreateProductPayload,
-  ListPaginatedAttributeOptionsParams, ListPaginatedCategoriesParams,
+  ListPaginatedAttributeOptionsParams, ListPaginatedCategoriesParams, ListPaginatedProductsParams,
 };
+use measurement::dto::uom::Uom as UomDto;
 
 pub struct ProductService;
 
@@ -120,6 +128,114 @@ impl ProductService {
       })
       .await?;
     Ok(attribute)
+  }
+
+  pub async fn list_paginated_products(
+    db: &DbConn,
+    params: ListPaginatedProductsParams,
+  ) -> Result<(Vec<ProductDto>, PaginationMeta), DbErr> {
+    let per_page = params.per_page.unwrap_or(30);
+    let page = params.page.unwrap_or(1) - 1;
+    let search = params.search.unwrap_or_default();
+
+    let product_query = Query::select()
+      .column((product::Entity, product::Column::Id))
+      .column((product::Entity, product::Column::ProductTemplateId))
+      .column((product_template::Entity, product_template::Column::Name))
+      .column((product_template::Entity, product_template::Column::UomId))
+      .expr_as(
+        Expr::col((uom::Entity, uom::Column::Name)),
+        Alias::new("uom_name"),
+      )
+      .column((
+        product_template::Entity,
+        product_template::Column::CategoryId,
+      ))
+      .expr_as(
+        Expr::col((category::Entity, category::Column::Name)),
+        Alias::new("category_name"),
+      )
+      .column((
+        product_template::Entity,
+        product_template::Column::IsTrackInventory,
+      ))
+      .expr_as(
+        Expr::col((
+          product_template::Entity,
+          product_template::Column::ProductType,
+        ))
+        .cast_as(Alias::new("TEXT")),
+        Alias::new("product_type"),
+      )
+      .expr_as(
+        Expr::col((
+          product_template::Entity,
+          product_template::Column::ProductSubtype,
+        ))
+        .cast_as(Alias::new("TEXT")),
+        Alias::new("product_subtype"),
+      )
+      .from(product::Entity)
+      .left_join(
+        product_template::Entity,
+        Expr::col((product::Entity, product::Column::ProductTemplateId))
+          .equals((product_template::Entity, product_template::Column::Id)),
+      )
+      .left_join(
+        category::Entity,
+        Expr::col((
+          product_template::Entity,
+          product_template::Column::CategoryId,
+        ))
+        .equals((category::Entity, category::Column::Id)),
+      )
+      .left_join(
+        uom::Entity,
+        Expr::col((product_template::Entity, product_template::Column::UomId))
+          .equals((uom::Entity, uom::Column::Id)),
+      )
+      .offset(page * per_page)
+      .limit(per_page)
+      .to_owned();
+    let builder = db.get_database_backend();
+    let product_result = ProductQueryResult::find_by_statement(builder.build(&product_query))
+      .all(db)
+      .await?;
+
+    let mut product_map: std::collections::HashMap<Uuid, ProductDto> =
+      std::collections::HashMap::new();
+    for product in product_result {
+      product_map.entry(product.id).or_insert_with(|| ProductDto {
+        id: product.id,
+        name: product.name.clone(),
+        product_template_id: product.product_template_id,
+        category: product.category_id.map(|id| CategoryDto {
+          id,
+          name: product.category_name.clone().unwrap(),
+        }),
+        uom: UomDto {
+          id: product.uom_id,
+          name: product.uom_name.clone(),
+        },
+        is_track_inventory: product.is_track_inventory,
+        product_type: product.product_type,
+        product_subtype: product.product_subtype,
+      });
+    }
+
+    let products: Vec<ProductDto> = product_map.into_values().collect();
+    let total = product::Entity::find().count(db).await?;
+    let total_pages = (total as f64 / per_page as f64).ceil() as u64;
+
+    Ok((
+      products,
+      PaginationMeta {
+        total,
+        total_pages,
+        page: page + 1,
+        per_page,
+      },
+    ))
   }
 
   pub async fn create_product(

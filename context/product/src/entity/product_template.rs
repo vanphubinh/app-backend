@@ -67,8 +67,10 @@ impl ActiveModelBehavior for ActiveModel {
 #[serde(rename_all = "lowercase")]
 pub enum ProductType {
   #[sea_orm(string_value = "goods")]
+  #[serde(rename = "goods")]
   Goods,
   #[sea_orm(string_value = "service")]
+  #[serde(rename = "service")]
   Service,
 }
 
