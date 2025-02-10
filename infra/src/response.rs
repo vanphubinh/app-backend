@@ -30,15 +30,17 @@ impl OkResponseWithReturningId {
   }
 }
 
-#[derive(Serialize)]
-pub struct OkResponseWithData<T> {
+#[derive(Serialize, ToResponse)]
+pub struct OkResponseWithArrayData<T: ToSchema> {
+  #[response(example = "true")]
   pub ok: bool,
-  pub data: T,
+  #[response(example = "{}")]
+  pub data: Vec<T>,
 }
 
-impl<T> OkResponseWithData<T> {
-  pub fn new(data: T) -> Self {
-    OkResponseWithData { ok: true, data }
+impl<T: ToSchema> OkResponseWithArrayData<T> {
+  pub fn new(data: Vec<T>) -> Self {
+    OkResponseWithArrayData { ok: true, data }
   }
 }
 

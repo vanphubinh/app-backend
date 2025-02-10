@@ -8,4 +8,6 @@ pub struct ListPaginatedAttributeOptionsParams {
   pub page: Option<u64>,
   #[param(rename = "perPage", example = "30", minimum = 30)]
   pub per_page: Option<u64>,
+  #[param(example = "color")]
+  pub search: Option<String>,
 }

@@ -11,6 +11,7 @@ use sea_orm::{
 
 use crate::dto::{
   attribute_option::AttributeOption as AttributeOptionDto,
+  attribute_option_value::AttributeOptionValue as AttributeOptionValueDto,
   category::Category as CategoryDto,
   product::{Product as ProductDto, ProductQueryResult},
 };
@@ -75,8 +76,10 @@ impl ProductService {
   ) -> Result<(Vec<AttributeOptionDto>, PaginationMeta), DbErr> {
     let per_page = params.per_page.unwrap_or(30);
     let page = params.page.unwrap_or(1) - 1;
+    let search = params.search.unwrap_or_default();
 
     let attribute_option_pages = attribute_option::Entity::find()
+      .filter(attribute_option::Column::Name.contains(search))
       .into_partial_model::<AttributeOptionDto>()
       .paginate(db, per_page);
     let attribute_options = attribute_option_pages.fetch_page(page).await?;
@@ -128,6 +131,18 @@ impl ProductService {
       })
       .await?;
     Ok(attribute)
+  }
+
+  pub async fn find_option_values_by_attribute_option_id(
+    db: &DbConn,
+    attribute_option_id: Uuid,
+  ) -> Result<Vec<AttributeOptionValueDto>, DbErr> {
+    let option_values = attribute_option_value::Entity::find()
+      .filter(attribute_option_value::Column::AttributeOptionId.eq(attribute_option_id))
+      .into_partial_model::<AttributeOptionValueDto>()
+      .all(db)
+      .await?;
+    Ok(option_values)
   }
 
   pub async fn list_paginated_products(
